@@ -14,7 +14,7 @@ public class CarAvoidance : MonoBehaviour
 
     private static float carRadius = 1f;
     private static float safeDistance = carRadius * 4;
-    private float reactDistance = safeDistance;
+    private float reactDistance = PredictMovement.distance_BTW_lanes;
 
     // Start is called before the first frame update
     void Start()
@@ -28,11 +28,12 @@ public class CarAvoidance : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float distance = Vector2.Distance(transform.position, userCar.position);
 
         // Evaluate movement only when the player car is within reaction distance
-        if (Vector2.Distance(transform.position, userCar.position) < reactDistance)
+        if (distance < reactDistance)
             movement.ChangeDirection(evaluate());
-        else
+        else if (distance > safeDistance)
             movement.ChangeDirection(new Vector2(0, 1));
     }
 
@@ -51,14 +52,10 @@ public class CarAvoidance : MonoBehaviour
         prevDiff = diff;
         prevPos = transform.position;
 
-        if (Mathf.Abs(angle) < angleBtwLanes) // If the player is in the center lane
-            return new Vector2(0, 1); // Continue straight
-
-        // Check if AI is behind the player
-        if (Mathf.Abs(angle - Mathf.PI) < angleBtwLanes)
-        {
-            return new Vector2(0, moveChange); // Adjust to avoid collision
-        }
+        if (Mathf.Abs(angle) < angleBtwLanes) // If the player behind the AV
+            return new Vector2(0, 1.0f/moveChange); 
+        if (Mathf.Abs(angle - Mathf.PI) < angleBtwLanes) // If the player is in front
+            return new Vector2(0, moveChange); 
         else // If not behind, determine position relative to the player
         {
             if (diff.x > 0) // Player is on the right side

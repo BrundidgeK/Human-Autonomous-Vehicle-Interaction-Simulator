@@ -7,6 +7,7 @@ public class AVMovement : MonoBehaviour
     private float moveSpeed;
     private Rigidbody2D rb;
 
+    [SerializeField]
     private Vector2 moveTarget = new Vector2(0, 1);
 
     // Start is called before the first frame update
@@ -25,7 +26,7 @@ public class AVMovement : MonoBehaviour
     void MoveCar()
     {
         // Set velocity based on the current movement target
-        rb.velocity = moveTarget * moveSpeed; 
+        rb.velocity = moveTarget * moveSpeed;
     }
 
     public void ChangeDirection(Vector2 move)
