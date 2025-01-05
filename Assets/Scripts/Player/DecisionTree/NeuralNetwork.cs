@@ -69,8 +69,25 @@ namespace PredictiveAI
 
         void UpdateGradients(DataPoint data)
         {
+            double h = .00001;
+
             Layer outputLayer = layers[layers.Length-1];
             double[] nodes = outputLayer.CalculateOutputNodeValues(data.expectedOutputs);
+            /*foreach (Layer layer in layers)
+            {
+                for (int i = 0; i < layer.numNodesIn; i++)
+                {
+                    for (int o = 0; o < layer.numNodesOut; o++)
+                    {
+                        layer.weights[i, o] += h;
+                        double deltaCost = Cost(trainingData) - originalCost;
+                        layer.weights[i, o] -= h;
+                        layer.costGradientW[i, o] = deltaCost / h;
+                    }
+                }
+                layer.applyGradients(learnRate);
+            }
+            */
         }
 
         double Cost(DataPoint data)
