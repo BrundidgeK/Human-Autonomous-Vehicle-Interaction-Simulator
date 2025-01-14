@@ -28,7 +28,7 @@ namespace PredictiveAI
             return inputs;
         }
 
-        int Classify(double[] inputs)
+        public int Classify(double[] inputs)
         {
             double[] outputs = CalculateOutputs(inputs);
 
@@ -46,16 +46,54 @@ namespace PredictiveAI
             return index;
         }
 
-        public void Learn(DataPoint[] trainingData, double learnRate)
+        public double cost; 
+
+        public void Learn(List<DataPoint> trainingData, double learnRate)
         {
-            const double h = .0000001;
+            const double h = .01;
+
             double originalCost = Cost(trainingData);
 
-            foreach(Layer layer in layers)
+            foreach (Layer layer in layers)
             {
                 for(int i = 0; i < layer.numNodesIn; i++)
                 {
                     for(int o = 0; o < layer.numNodesOut; o++)
+                    {
+                        layer.weights[i, o] += h;
+                        double deltaCost = Cost(trainingData) - originalCost;
+                        layer.weights[i, o] -= h;
+                        layer.costGradientW[i, o] = deltaCost / h;
+                    }
+                }
+                layer.applyGradients(learnRate);
+            }
+        }
+
+        public void Learn(List<DataPoint> train, int maxSize, double learnRate)
+        {
+            const double h = .001;
+
+            List<DataPoint> trainingData = new List<DataPoint>();
+            while(trainingData.Count < maxSize)
+            {
+                int index = UnityEngine.Random.Range(0, train.Count);
+                trainingData.Add(train[index]);
+                train.RemoveAt(index);
+            }
+
+            double originalCost = Cost(trainingData);
+
+            foreach (Layer layer in layers)
+            {
+                for(int o = 0; o < layer.numNodesOut; o++)
+                {
+                    layer.biases[o] += h;
+                    double biasCost = Cost(trainingData) - originalCost;
+                    layer.biases[o] -= h;
+                    layer.costGradientB[o] = biasCost / h;
+
+                    for(int i = 0; i < layer.numNodesIn; i++)
                     {
                         layer.weights[i, o] += h;
                         double deltaCost = Cost(trainingData) - originalCost;
@@ -104,7 +142,7 @@ namespace PredictiveAI
             return cost; 
         }
 
-        double Cost(DataPoint[] data)
+        double Cost(List<DataPoint> data)
         {
             double totalCost = 0;
 
@@ -113,7 +151,13 @@ namespace PredictiveAI
                 totalCost += Cost(dataPt);
             }
 
-            return totalCost / data.Length;
+            cost = totalCost / data.Count;
+            return cost;
+        }
+
+        public Layer[] getLayers()
+        {
+            return layers;
         }
     }
 }

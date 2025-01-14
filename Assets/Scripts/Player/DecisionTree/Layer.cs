@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,6 @@ namespace PredictiveAI
             this.numNodesOut = numNodesOut;
 
             costGradientW = new double[numNodesIn, numNodesOut];
-            weights = new double[numNodesIn, numNodesOut];
             costGradientB = new double[numNodesOut];
 
             weights = new double[numNodesIn, numNodesOut];
@@ -32,14 +32,28 @@ namespace PredictiveAI
             randomWeights();
         }
 
+        public Layer(int numNodesIn, int numNodesOut, double[,] weights, double[] biases)
+        {
+            this.numNodesIn = numNodesIn;
+            this.numNodesOut = numNodesOut;
+
+            costGradientW = new double[numNodesIn, numNodesOut];
+            weights = new double[numNodesIn, numNodesOut];
+            costGradientB = new double[numNodesOut];
+
+            this.weights = weights;
+            this.biases = biases;
+            weightedInputs = new double[numNodesOut];
+            activations = new double[numNodesOut];
+        }
+
         private void randomWeights()
         {
             for(int i = 0; i < numNodesIn; i++)
             {
                 for(int o = 0; o < numNodesOut; o++)
                 {
-                    double rand = Random.Range(-3, 1);
-                    weights[i, o] = rand / Mathf.Sqrt(numNodesIn);
+                    weights[i, o] = UnityEngine.Random.Range(-1f, 1f) / Mathf.Sqrt(numNodesIn);
                 }
             }
         }
@@ -51,6 +65,7 @@ namespace PredictiveAI
                 biases[nodeOut] -= costGradientB[nodeOut] * learnRate;
                 for (int nodeIn = 0; nodeIn < numNodesIn; nodeIn++)
                 {
+                    double a = weights[nodeIn, nodeOut];
                     weights[nodeIn, nodeOut] -= costGradientW[nodeIn, nodeOut] * learnRate;
                 }
             }
@@ -70,8 +85,7 @@ namespace PredictiveAI
                 activations[nodeOut] = ActivationFunction(weightedInput);
             }
 
-            activations = weightedInputs;
-            return weightedInputs;
+            return activations;
         }
 
         public double[] CalculateOutputNodeValues(double[] expectedOutputs)
@@ -90,13 +104,12 @@ namespace PredictiveAI
 
         double ActivationFunction(double weightedInput)
         {
-            return 1.0 / (1 + Mathf.Exp(-(float)weightedInput));
+            return Math.Tanh(weightedInput);
         }
 
         double ActivationFunctionDerivative(double weightedInput)
         {
-            double act = ActivationFunction(weightedInput);
-            return act * (1 - act); 
+            return 1.0 / (Math.Cosh(weightedInput) * Math.Cosh(weightedInput));
         }
 
         public static double NodeCost(double outputActivation, double expectedOutput)

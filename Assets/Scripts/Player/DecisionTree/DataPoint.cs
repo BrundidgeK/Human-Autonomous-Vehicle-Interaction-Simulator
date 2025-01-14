@@ -12,7 +12,7 @@ namespace PredictiveAI
 
         public DataPoint(double[] data)
         {
-            this.data = data;
+            setData(data);
         }
         public DataPoint() { }
 
@@ -23,12 +23,25 @@ namespace PredictiveAI
 
         public void setData(double[] data)
         {
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (data[i] != data[i])
+                    data[i] = 0;
+            }
+
             this.data = data;
         }
 
         public override string ToString()
         {
-            return data.ToString();
+            string l = "";
+
+            foreach (var item in data)
+            {
+                l += item.ToString()+", ";
+            }
+
+            return l;
         }
     }
 }

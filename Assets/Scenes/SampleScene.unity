@@ -360,7 +360,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.27672952, g: 0.27672952, b: 0.27672952, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -695,7 +695,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prev: 0
   current: 0
-  future: 0
+  future: 1
   player_detect: {fileID: 0}
 --- !u!114 &1201870759
 MonoBehaviour:
@@ -910,6 +910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6a169b305bc00e4ba49fff17815d6f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveTarget: {x: 0, y: 1}
 --- !u!1 &1922569288
 GameObject:
   m_ObjectHideFlags: 0
@@ -990,7 +991,7 @@ Transform:
   m_GameObject: {fileID: 1922569288}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.31, y: -5.95, z: 0}
+  m_LocalPosition: {x: 1.31, y: -9.075, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1117,8 +1118,36 @@ PrefabInstance:
       value: Lane
       objectReference: {fileID: 0}
     - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
-      propertyPath: m_Positions.Array.data[1].z
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[1].time
+      value: 0.0010822713
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[1].value
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7009673513064116807, guid: 25daa26040b23814098ede82cac627e7, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 7802789844228260671, guid: 25daa26040b23814098ede82cac627e7, type: 3}
       propertyPath: m_LocalPosition.x

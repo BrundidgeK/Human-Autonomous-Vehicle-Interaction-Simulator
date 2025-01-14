@@ -25,6 +25,7 @@ public class LaneObject : MonoBehaviour
             line.SetPosition(i, transform.GetChild(i).localPosition+transform.position);
             points.Add(transform.GetChild(i).localPosition + transform.position);
         }
+
         edge.SetPoints(points);
     }
 }

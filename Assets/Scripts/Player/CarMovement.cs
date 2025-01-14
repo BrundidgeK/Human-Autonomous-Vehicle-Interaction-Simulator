@@ -21,12 +21,12 @@ public class CarMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HandleSteeringInput();
+        MoveCar();
     }
 
     void FixedUpdate()
     {
-        MoveCar();
+        HandleSteeringInput();
     }
 
     void HandleSteeringInput()

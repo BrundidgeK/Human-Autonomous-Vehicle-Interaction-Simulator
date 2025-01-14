@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -13,7 +14,7 @@ public class CarAvoidance : MonoBehaviour
     private float moveChange = .75f;
 
     private static float carRadius = 1f;
-    private static float safeDistance = carRadius * 4;
+    private static float safeDistance = carRadius * 6;
     private float reactDistance = PredictMovement.distance_BTW_lanes;
 
     // Start is called before the first frame update
@@ -28,12 +29,10 @@ public class CarAvoidance : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float distance = Vector2.Distance(transform.position, userCar.position);
-
         // Evaluate movement only when the player car is within reaction distance
-        if (distance < reactDistance)
+        if (insideBoundingBox(reactDistance, transform.position, userCar.position))
             movement.ChangeDirection(evaluate());
-        else if (distance > safeDistance)
+        else if (!insideBoundingBox(safeDistance, transform.position, userCar.position))
             movement.ChangeDirection(new Vector2(0, 1));
     }
 
@@ -44,7 +43,7 @@ public class CarAvoidance : MonoBehaviour
         Vector2 moveVector = prevDiff - diff,
                 move1Vector = (Vector2)transform.position - prevPos;
         float angle = Mathf.Atan2(diff.x, diff.y); // Angle between AI and player car
-        float angleBtwLanes = Mathf.Atan2(Vector2.Distance(transform.position, userCar.position), PredictMovement.distance_BTW_lanes);
+        float angleBtwLanes = Mathf.Atan2(Vector2.Distance(transform.position, userCar.position), PredictMovement.distance_BTW_lanes/2);
 
         // Predict player movement
         int playerLane = prediction.future != 0 ? (int)prediction.future : (int)prediction.current;
@@ -73,5 +72,18 @@ public class CarAvoidance : MonoBehaviour
         // Default to moving forward
         return new Vector2(0, 1);
     }
+
+    private Boolean insideBoundingBox(float radius, Vector2 origin, Vector2 other)
+    {
+        // Calculate the boundaries of the bounding box
+        float minX = origin.x - radius;
+        float maxX = origin.x + radius;
+        float minY = origin.y - radius;
+        float maxY = origin.y + radius;
+
+        // Check if the other point is within the boundaries
+        return (other.x >= minX && other.x <= maxX) && (other.y >= minY && other.y <= maxY);
+    }
+
 }
 

@@ -23,15 +23,18 @@ public class PredictMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*if (prevValues.Length > 0)
-            Predict();
-        prevValues = player_detect.detectors;
-        prevSteer = rotationRead.rotation;*/
     }
 
-    void Predict()
+    public void changeMovement(movement m)
     {
-        float rotationDiff = rotationRead.rotation - prevSteer;
-         
+        prev = current;
+        current = future;
+        future = m;
+    }
+    public void changeMovement(int m)
+    {
+        prev = current;
+        current = future;
+        future = (movement)m;
     }
 }
