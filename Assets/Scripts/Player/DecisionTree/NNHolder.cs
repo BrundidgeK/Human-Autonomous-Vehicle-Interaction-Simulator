@@ -2,6 +2,7 @@ using PredictiveAI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ public class NNHolder : MonoBehaviour
     private DataCollector collect;
     public static int[] layers = new int[]
     {
-        5, 10, 7, 5
+        6, 10, 7, 5
     };
 
     [SerializeField]
@@ -59,7 +60,7 @@ public class NNHolder : MonoBehaviour
         if (curE < epochs)
         {
             List<DataPoint> datas = CSVToData();
-            neuralNetwork.Learn(datas, learnRate);
+            neuralNetwork.Learn(datas, datas.Count/5, learnRate);
 
             string a = "Epochs: " + curE + " / " + epochs + "\n";
             string b = "Current Cost: " + neuralNetwork.cost + "\n";
@@ -172,29 +173,49 @@ public class NNHolder : MonoBehaviour
             var line = lines[i];
             var values = line.Split(',');
 
-            // Parse each field and create a DataPoint object
-            var dataPoint = new DataPoint
-            {
-                data = new double[]
-                {
-                    double.Parse(values[0]), 
-                    double.Parse(values[1]), 
-                    double.Parse(values[2]), 
-                    double.Parse(values[3]), 
-                    double.Parse(values[4])
-                },
-                expectedOutputs = new double[]
-                {
-                    double.Parse(values[5]),
-                    double.Parse(values[6]),
-                    double.Parse(values[7]),
-                    double.Parse(values[8]),
-                    double.Parse(values[9]),
-                }
-            };
 
-            dataPoints.Add(dataPoint);
+            if (values.Length < 11)
+            {
+                Debug.LogError($"Line {i + 1} is invalid: {line}");
+                continue;
+            }
+
+            try
+            {
+                // Parse each field and create a DataPoint object
+                var dataPoint = new DataPoint
+                {
+                    data = new double[]
+                    {
+                    double.Parse(values[0].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[1].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[2].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[3].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[4].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[5].Trim(), CultureInfo.InvariantCulture)
+                    },
+                    expectedOutputs = new double[]
+                    {
+                    double.Parse(values[6].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[7].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[8].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[9].Trim(), CultureInfo.InvariantCulture),
+                    double.Parse(values[10].Trim(), CultureInfo.InvariantCulture)
+                    }
+                };
+
+                dataPoints.Add(dataPoint);
+            }
+            catch (FormatException ex)
+            {
+                Debug.LogError($"Line {i + 1} has invalid number format: {line}. Error: {ex.Message}");
+            }
+            catch (OverflowException ex)
+            {
+                Debug.LogError($"Line {i + 1} has a value out of range: {line}. Error: {ex.Message}");
+            }
         }
+    
 
         if (dataPoints.Count == 0)
             Debug.LogError("Training Data could not be extracted");

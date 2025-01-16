@@ -88,10 +88,6 @@ namespace PredictiveAI
             {
                 for(int o = 0; o < layer.numNodesOut; o++)
                 {
-                    layer.biases[o] += h;
-                    double biasCost = Cost(trainingData) - originalCost;
-                    layer.biases[o] -= h;
-                    layer.costGradientB[o] = biasCost / h;
 
                     for(int i = 0; i < layer.numNodesIn; i++)
                     {
@@ -100,6 +96,10 @@ namespace PredictiveAI
                         layer.weights[i, o] -= h;
                         layer.costGradientW[i, o] = deltaCost / h;
                     }
+                    layer.biases[o] += h;
+                    double biasCost = Cost(trainingData) - originalCost;
+                    layer.biases[o] -= h;
+                    layer.costGradientB[o] = biasCost / h;
                 }
                 layer.applyGradients(learnRate);
             }
@@ -107,10 +107,11 @@ namespace PredictiveAI
 
         void UpdateGradients(DataPoint data)
         {
-            double h = .00001;
+            CalculateOutputs(data.Data());
 
             Layer outputLayer = layers[layers.Length-1];
             double[] nodes = outputLayer.CalculateOutputNodeValues(data.expectedOutputs);
+
             /*foreach (Layer layer in layers)
             {
                 for (int i = 0; i < layer.numNodesIn; i++)

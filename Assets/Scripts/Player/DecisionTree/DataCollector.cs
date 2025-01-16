@@ -1,4 +1,5 @@
 using PredictiveAI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,11 +13,12 @@ public class DataCollector : MonoBehaviour
 
     private SerialControl rotationRead;
     public LaneDetector player_detect;
-    private double prevLeft, prevRight, prevFront;
+    private double prevLeft, prevRight, prevFront, prevRot;
     public Transform car;
 
     // Path to store training data
     private string filePath = "C:/Users/kgbru/OneDrive/Documents/game stuff/AV-UNI-SIMI/Assets/Scripts/Player/DecisionTree";
+    private Dictionary<string, int> map = new Dictionary<string, int>();
 
     /*
      * Input Layer:
@@ -31,12 +33,14 @@ public class DataCollector : MonoBehaviour
     {
         rotationRead = FindObjectOfType<SerialControl>();
 
+        string origin = filePath;
         filePath += "/TrainingData.csv";
 
         // Create the file and add the header if it doesn't exist
         if (!File.Exists(filePath))
         {
-            File.WriteAllText(filePath, "LeftChange,RightChange,LaneType,FrontChange,WheelAngle,ExpectedOutput\n");
+            File.WriteAllText(filePath, "LeftChange,RightChange,LaneType,FrontChange,WheelAngle,AngleChange, ExpectedOutput\n");
+        
         }
     }
 
@@ -45,19 +49,21 @@ public class DataCollector : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.Space) && !recording)
         {
+            currentMillis = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
             recording = true;
             StartCoroutine(record());
         }
         else if(Input.GetKeyUp(KeyCode.Space)) 
         {
             recording = false;
+            currentMillis = 0;
         }
     }
 
     IEnumerator record()
     {
-        yield return new WaitForSeconds(.125f);
         writeToFile();
+        yield return new WaitForSeconds(.125f);
         if (recording)
             StartCoroutine(record());
     }
@@ -72,10 +78,16 @@ public class DataCollector : MonoBehaviour
         }
 
         DataPoint d = getCurrentValues();
+        if (d == null)
+            return;
 
         // Prepare the line for CSV
         string line = d.ToString() + expectedOut;
         line = line.Replace("NaN", "0");
+
+        if (map.ContainsKey(line))
+            return;
+        map.Add(line, 1);
 
         // Append the data to the file
         File.AppendAllText(filePath, line + "\n");
@@ -100,15 +112,24 @@ public class DataCollector : MonoBehaviour
         return "0,0,0,0,0";
     }
 
+    private long currentMillis;
     public DataPoint getCurrentValues()
     {
+        if (currentMillis == 0)
+        {
+            currentMillis = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+            return null;
+        }
+
+        long timeElasped = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - currentMillis;
+
         // Calculate inputs
         Vector2 left_hit = player_detect.detectors[2].hitPoint;
         double distanceFromLeft = Mathf.Cos(Mathf.Atan2(left_hit.y - car.position.y, left_hit.x - car.position.x));
         Vector2 right_hit = player_detect.detectors[1].hitPoint;
         double distanceFromRight = Mathf.Cos(Mathf.Atan2(right_hit.y - car.position.y, right_hit.x - car.position.x));
-        double leftChange = Mathf.Clamp((float)(distanceFromLeft - prevLeft), -1, 1);
-        double rightChange = Mathf.Clamp((float)(distanceFromRight - prevRight), -1, 1);
+        double leftChange = (distanceFromLeft - prevLeft);
+        double rightChange = (distanceFromRight - prevRight);
         prevLeft = distanceFromLeft;
         prevRight = distanceFromRight;
 
@@ -138,12 +159,14 @@ public class DataCollector : MonoBehaviour
         prevFront = distanceFront;
 
         double rotate = rotationRead.rotation;
+        double rotateChange = rotate - prevRot;
 
         DataPoint data = new DataPoint();
         data.setData(new double[]
         {
-            leftChange, rightChange, laneType, changeFront, rotate
+            leftChange/timeElasped, rightChange/timeElasped, laneType, changeFront/timeElasped, rotate, rotateChange/timeElasped,
         });
+        currentMillis = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
         return data;
     }
 }

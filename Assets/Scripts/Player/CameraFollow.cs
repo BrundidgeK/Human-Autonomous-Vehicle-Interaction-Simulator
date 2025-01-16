@@ -22,10 +22,18 @@ public class CameraFollow : MonoBehaviour
     {
         Vector2 tarPos = (Vector2)target.position + offset;
         transform.position = new Vector3(tarPos.x, tarPos.y, -10);
-        if(Mathf.Abs(transform.rotation.z-target.rotation.z) > maxRotationDiff)
+
+        if(Mathf.Abs(normalizeAngle(transform.eulerAngles.z-target.eulerAngles.z)) > maxRotationDiff)
         {
-            float scalar = transform.rotation.z - (transform.rotation.z % 90);
-            transform.rotation = new Quaternion(0, 0, scalar, 0);
+            float scalar = target.eulerAngles.z - (target.eulerAngles.z % 90);
+            transform.eulerAngles = new Vector3(0,0,scalar);
+            Debug.Log(scalar);
+
         }
+    }
+
+    private float normalizeAngle(float angle)
+    {
+        return angle + Mathf.Ceil((-angle - 179) / 360) * 360;
     }
 }

@@ -23,7 +23,7 @@ public class LaneObject : MonoBehaviour
         for(int i = 0; i < line.positionCount; i++)
         {
             line.SetPosition(i, transform.GetChild(i).localPosition+transform.position);
-            points.Add(transform.GetChild(i).localPosition + transform.position);
+            points.Add(transform.GetChild(i).localPosition);
         }
 
         edge.SetPoints(points);
